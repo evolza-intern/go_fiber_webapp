@@ -15,10 +15,10 @@ func GenerateInvoiceContent(order models.Order) string {
 	sb.WriteString("                 INVOICE                       \n")
 	sb.WriteString("===============================================\n\n")
 
-	sb.WriteString(fmt.Sprintf("Invoice ID: INV-%s\n", order.ID.Hex()))
-	sb.WriteString(fmt.Sprintf("Order ID: %s\n", order.ID.Hex()))
+	sb.WriteString(fmt.Sprintf("Invoice OrderID: INV-%s\n", order.OrderID.Hex()))
+	sb.WriteString(fmt.Sprintf("Order OrderID: %s\n", order.OrderID.Hex()))
 	sb.WriteString(fmt.Sprintf("Order Date: %s\n", order.OrderDate.Format("January 2, 2006")))
-	sb.WriteString(fmt.Sprintf("User ID: %s\n", order.UserID.Hex()))
+	sb.WriteString(fmt.Sprintf("User OrderID: %s\n", order.UserID.Hex()))
 	sb.WriteString(fmt.Sprintf("Status: %s\n", strings.Title(order.Status)))
 	sb.WriteString(fmt.Sprintf("Payment Status: %s\n", strings.Title(order.PaymentStatus)))
 	sb.WriteString(fmt.Sprintf("Payment Method: %s\n\n", strings.Title(order.PaymentMethod)))

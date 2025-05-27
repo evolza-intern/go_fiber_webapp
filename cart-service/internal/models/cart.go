@@ -3,18 +3,20 @@ package models
 import "time"
 
 type CartItem struct {
-	ProductID   string  `json:"product_id"`
-	ProductName string  `json:"product_name"`
-	Price       float64 `json:"price"`
-	Quantity    int     `json:"quantity"`
-	Subtotal    float64 `json:"subtotal"`
+	ProductID   string  `bson:"product_id" json:"product_id"`
+	ProductName string  `bson:"product_name" json:"product_name"`
+	Price       float64 `bson:"price" json:"price"`
+	Quantity    int     `bson:"quantity" json:"quantity"`
+	Subtotal    float64 `bson:"subtotal" json:"subtotal"`
 }
 
 type Cart struct {
-	UserID    string     `json:"user_id"`
-	Items     []CartItem `json:"items"`
-	Total     float64    `json:"total"`
-	UpdatedAt time.Time  `json:"updated_at"`
+	ID        interface{} `bson:"_id,omitempty" json:"id,omitempty"`
+	UserID    string      `bson:"user_id" json:"user_id"`
+	Items     []CartItem  `bson:"items" json:"items"`
+	Total     float64     `bson:"total" json:"total"`
+	UpdatedAt time.Time   `bson:"updated_at" json:"updated_at"`
+	CreatedAt time.Time   `bson:"created_at" json:"created_at"`
 }
 
 // WebSocket message types

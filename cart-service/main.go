@@ -1,10 +1,9 @@
 package main
 
 import (
+	"github.com/evolza-intern/go_fiber_webapp/cart-service/internal/api"
 	"log"
 
-	"github.com/evolza-intern/go_fiber_webapp/cart-service/internal/handlers"
-	"github.com/evolza-intern/go_fiber_webapp/cart-service/internal/storage"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -15,18 +14,11 @@ func main() {
 	// Enable CORS for microservice communication
 	app.Use(cors.New())
 
-	// Initialize in-memory storage
-	storage.InitCartStorage()
+	// Initialize in-memory db (if you're still using it alongside MongoDB)
+	//db.InitCartStorage()
 
-	// Initialize handlers
-	handlers.InitHandlers()
-
-	// REST API Routes
-	app.Get("/:userId", handlers.GetCart)                // Get current cart (fallback)
-	app.Post("/checkout/:userId", handlers.CheckoutCart) // Checkout (saves to order-service)
-
-	// WebSocket Route
-	app.Get("/ws/:userId", handlers.HandleWebSocket) // WebSocket connection
+	// Setup all routes
+	api.SetupRoutes(app)
 
 	log.Println("Cart Service running on http://localhost:3002")
 	log.Fatal(app.Listen(":3002"))

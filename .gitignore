@@ -1,3 +1,5 @@
 /.env
-
+order-service/.env
+products-service/.env
+order-service/invoices/
 .idea/

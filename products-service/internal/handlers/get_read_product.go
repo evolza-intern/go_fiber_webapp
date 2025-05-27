@@ -3,27 +3,25 @@ package handlers
 import (
 	"context"
 	"errors"
-	"github.com/evolza-intern/go_fiber_webapp/products-service/internal/models"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 // GetProduct READ ONE
-func GetProduct(c *fiber.Ctx) error {
+func (h *ProductHandlers) GetProduct(c *fiber.Ctx) error {
 	id := c.Params("id")
 
-	// Convert string ID to ObjectID
+	// Convert string ProductID to ObjectID
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
-			"error": "Invalid product ID format",
+			"error": "Invalid product ProductID format",
 		})
 	}
 
-	var product models.Product
-	err = productCollection.FindOne(context.TODO(), bson.M{"_id": objectID}).Decode(&product)
+	ctx := context.TODO()
+	product, err := h.readDAO.GetProductByID(ctx, objectID)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return c.Status(404).JSON(fiber.Map{

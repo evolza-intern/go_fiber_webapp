@@ -4,19 +4,18 @@ import (
 	"context"
 	"github.com/evolza-intern/go_fiber_webapp/products-service/internal/models"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // UpdateProduct UPDATE
-func UpdateProduct(c *fiber.Ctx) error {
+func (h *ProductHandlers) UpdateProduct(c *fiber.Ctx) error {
 	id := c.Params("id")
 
-	// Convert string ID to ObjectID
+	// Convert string ProductID to ObjectID
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
-			"error": "Invalid product ID format",
+			"error": "Invalid product ProductID format",
 		})
 	}
 
@@ -27,17 +26,8 @@ func UpdateProduct(c *fiber.Ctx) error {
 		})
 	}
 
-	// Remove ID from update to prevent conflicts
-	update := bson.M{
-		"$set": bson.M{
-			"name":        product.Name,
-			"description": product.Description,
-			"price":       product.Price,
-			"stock":       product.Stock,
-		},
-	}
-
-	result, err := productCollection.UpdateOne(context.TODO(), bson.M{"_id": objectID}, update)
+	ctx := context.TODO()
+	result, err := h.updateDAO.UpdateProduct(ctx, objectID, &product)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": "Update failed",

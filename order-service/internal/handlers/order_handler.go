@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/evolza-intern/go_fiber_webapp/order-service/internal/models"
@@ -14,12 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
-
-var orderCollection *mongo.Collection
-
-func InitOrderHandler(collection *mongo.Collection) {
-	orderCollection = collection
-}
 
 // POST /api/orders - Save order (called by cart)
 func CreateOrder(c *fiber.Ctx) error {
@@ -31,8 +24,8 @@ func CreateOrder(c *fiber.Ctx) error {
 	}
 
 	// Set default values
-	if order.ID.IsZero() {
-		order.ID = primitive.NewObjectID()
+	if order.OrderID.IsZero() {
+		order.OrderID = primitive.NewObjectID()
 	}
 	order.OrderDate = time.Now()
 	if order.Status == "" {
@@ -57,7 +50,7 @@ func CreateOrder(c *fiber.Ctx) error {
 		})
 	}
 
-	order.ID = result.InsertedID.(primitive.ObjectID)
+	order.OrderID = result.InsertedID.(primitive.ObjectID)
 	return c.Status(201).JSON(fiber.Map{
 		"message": "Order created successfully",
 		"order":   order,
@@ -71,7 +64,7 @@ func GetUserOrders(c *fiber.Ctx) error {
 	userObjectID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
-			"error": "Invalid user ID format",
+			"error": "Invalid user OrderID format",
 		})
 	}
 
@@ -107,7 +100,7 @@ func GetOrderInvoice(c *fiber.Ctx) error {
 	orderObjectID, err := primitive.ObjectIDFromHex(orderID)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
-			"error": "Invalid order ID format",
+			"error": "Invalid order OrderID format",
 		})
 	}
 
@@ -127,7 +120,7 @@ func GetOrderInvoice(c *fiber.Ctx) error {
 	// Generate invoice file if not already generated
 	if !order.InvoiceGenerated {
 		invoiceContent := utils.GenerateInvoiceContent(order)
-		filename := fmt.Sprintf("invoice_%s.txt", order.ID.Hex())
+		filename := fmt.Sprintf("invoice_%s.txt", order.OrderID.Hex())
 		filepath := fmt.Sprintf("./invoices/%s", filename)
 
 		if err := os.WriteFile(filepath, []byte(invoiceContent), 0644); err != nil {
@@ -150,43 +143,11 @@ func GetOrderInvoice(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{
 		"order":       order,
-		"invoice_url": fmt.Sprintf("/download/invoice/invoice_%s.txt", order.ID.Hex()),
+		"invoice_url": fmt.Sprintf("/download/invoice/invoice_%s.txt", order.OrderID.Hex()),
 	})
 }
 
 // GET /download/invoice/:filename - Download specific invoice file
-func DownloadInvoice(c *fiber.Ctx) error {
-	filename := c.Params("filename")
-
-	// Security: Prevent directory traversal
-	if strings.Contains(filename, "..") || strings.Contains(filename, "/") {
-		return c.Status(400).JSON(fiber.Map{
-			"error": "Invalid filename",
-		})
-	}
-
-	// Validate filename format (should be invoice_<orderid>.txt)
-	if !strings.HasPrefix(filename, "invoice_") || !strings.HasSuffix(filename, ".txt") {
-		return c.Status(400).JSON(fiber.Map{
-			"error": "Invalid invoice filename format",
-		})
-	}
-
-	filepath := fmt.Sprintf("./invoices/%s", filename)
-
-	// Check if file exists
-	if _, err := os.Stat(filepath); os.IsNotExist(err) {
-		return c.Status(404).JSON(fiber.Map{
-			"error": "Invoice file not found",
-		})
-	}
-
-	// Set headers for file download
-	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
-	c.Set("Content-Type", "text/plain")
-
-	return c.SendFile(filepath)
-}
 
 // GET /download/orders/:userId - List user's available invoices
 func ListUserInvoices(c *fiber.Ctx) error {
@@ -195,7 +156,7 @@ func ListUserInvoices(c *fiber.Ctx) error {
 	userObjectID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
-			"error": "Invalid user ID format",
+			"error": "Invalid user OrderID format",
 		})
 	}
 
@@ -221,9 +182,9 @@ func ListUserInvoices(c *fiber.Ctx) error {
 	// Build invoice list
 	invoices := make([]fiber.Map, 0)
 	for _, order := range orders {
-		filename := fmt.Sprintf("invoice_%s.txt", order.ID.Hex())
+		filename := fmt.Sprintf("invoice_%s.txt", order.OrderID.Hex())
 		invoices = append(invoices, fiber.Map{
-			"order_id":     order.ID.Hex(),
+			"order_id":     order.OrderID.Hex(),
 			"order_date":   order.OrderDate,
 			"total_amount": order.TotalAmount,
 			"status":       order.Status,

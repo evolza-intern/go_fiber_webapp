@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/evolza-intern/go_fiber_webapp/order-service/internal/api"
 	"log"
 	"os"
 
@@ -28,16 +29,7 @@ func main() {
 		log.Fatal("Failed to create invoices directory:", err)
 	}
 
-	// API Routes
-	api := app.Group("/api/orders")
-	api.Post("/", handlers.CreateOrder)                    // Save order (called by cart)
-	api.Get("/user/:userId", handlers.GetUserOrders)       // Get all orders of a user
-	api.Get("/:orderId/invoice", handlers.GetOrderInvoice) // Get specific order for invoice generation
-
-	// File Server Routes for Invoice Downloads
-	app.Static("/invoices", "./invoices")                            // Static file serving
-	app.Get("/download/invoice/:filename", handlers.DownloadInvoice) // Download specific invoice
-	app.Get("/download/orders/:userId", handlers.ListUserInvoices)   // List user's available invoices
+	api.SetupRoutes(app, orderCollection)
 
 	log.Println("Order Service running on http://localhost:3001")
 	log.Fatal(app.Listen(":3001"))

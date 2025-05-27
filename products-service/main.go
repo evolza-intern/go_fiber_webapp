@@ -7,8 +7,6 @@ import (
 	"syscall"
 
 	database "github.com/evolza-intern/go_fiber_webapp/products-service/internal/db"
-	"github.com/evolza-intern/go_fiber_webapp/products-service/internal/handlers"
-
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/evolza-intern/go_fiber_webapp/products-service/internal/api"
@@ -23,11 +21,8 @@ func main() {
 	// Get collection
 	productCollection := database.GetCollection("go_fiber_eCommerce", "products")
 
-	// Inject collection into handlers
-	handlers.InitProductHandler(productCollection)
-
-	// Setup routes
-	api.SetupRoutes(app)
+	// Setup routes with the collection
+	api.SetupRoutes(app, productCollection)
 
 	// Graceful shutdown
 	go func() {
@@ -37,7 +32,10 @@ func main() {
 
 		log.Println("Shutting down server...")
 		database.DisconnectMongo()
-		app.Shutdown()
+		err := app.Shutdown()
+		if err != nil {
+			log.Printf("Error during shutdown: %v", err)
+		}
 	}()
 
 	log.Println("Server is running on http://localhost:3000")
