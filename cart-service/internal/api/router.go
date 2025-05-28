@@ -7,7 +7,7 @@ import (
 )
 
 func SetupRoutes(app *fiber.App) {
-	// Initialize handlers (this could also be moved to main.go if preferred)
+	// Initialize handlers
 	if err := db.InitHandlers(); err != nil {
 		panic("Failed to initialize cart handlers: " + err.Error())
 	}

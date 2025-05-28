@@ -82,14 +82,13 @@ func handleUpdateItem(conn *websocket.Conn, userID string, data interface{}) {
 		return
 	}
 
-	// Update in MongoDB (this will trigger polling notification)
+	// Update in MongoDB
 	if err := db.MongoStorage.UpdateCartItem(userID, item); err != nil {
 		log.Printf("Error updating cart item: %v", err)
 		sendError(conn, "Failed to update cart")
 		return
 	}
 
-	// Polling will handle notifying all connected clients
 }
 
 func handleRemoveItem(conn *websocket.Conn, userID string, data interface{}) {
@@ -111,7 +110,6 @@ func handleRemoveItem(conn *websocket.Conn, userID string, data interface{}) {
 		return
 	}
 
-	// Polling will handle notifying all connected clients
 }
 
 func handleClearCart(conn *websocket.Conn, userID string) {
@@ -121,7 +119,6 @@ func handleClearCart(conn *websocket.Conn, userID string) {
 		return
 	}
 
-	// Polling will handle notifying all connected clients
 }
 
 func handleGetCart(conn *websocket.Conn, userID string) {

@@ -14,9 +14,6 @@ func main() {
 	// Enable CORS for microservice communication
 	app.Use(cors.New())
 
-	// Initialize in-memory db (if you're still using it alongside MongoDB)
-	//db.InitCartStorage()
-
 	// Setup all routes
 	api.SetupRoutes(app)
 
