@@ -1,5 +1,7 @@
 /.env
+api-gateway/.env
 order-service/.env
+data-streams/data
 products-service/.env
 order-service/invoices/
 .idea/
