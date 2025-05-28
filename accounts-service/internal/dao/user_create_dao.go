@@ -27,6 +27,16 @@ func LoadUsers() ([]models.User, error) {
 				Username: "admin",
 				Password: utils.HashPassword("admin123"), // Default password
 			},
+			{
+				ID:       2,
+				Username: "testuser",
+				Password: utils.HashPassword("test1234"),
+			},
+			{
+				ID:       3,
+				Username: "developer",
+				Password: utils.HashPassword("devpass"),
+			},
 		}
 		return defaultUsers, SaveUsers(defaultUsers)
 	}

@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 // DataChunk represents a single piece of incoming data
 type DataChunk struct {
