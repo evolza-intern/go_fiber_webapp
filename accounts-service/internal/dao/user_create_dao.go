@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	dbPath = "./db/users.json"
+	dbPath = "db/users.json"
 )
 
 func LoadUsers() ([]models.User, error) {
