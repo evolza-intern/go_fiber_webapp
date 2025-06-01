@@ -38,6 +38,6 @@ func main() {
 		}
 	}()
 
-	log.Println("Server is running on http://localhost:3000")
-	log.Fatal(app.Listen(":3000"))
+	log.Println("Server is running on http://localhost:8002")
+	log.Fatal(app.Listen(":8002"))
 }

@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "action": "User Login",
+    "user_id": 1,
+    "username": "admin",
+    "timestamp": "2025-05-30T08:09:50.1116661+05:30",
+    "details": "Admin user logged in"
+  },
+  {
+    "id": 2,
+    "action": "User Created",
+    "user_id": 2,
+    "username": "system",
+    "timestamp": "2025-05-30T09:09:50.1116661+05:30",
+    "details": "New user john_doe created"
+  },
+  {
+    "id": 3,
+    "action": "Profile Updated",
+    "user_id": 3,
+    "username": "jane_smith",
+    "timestamp": "2025-05-30T09:39:50.1116661+05:30",
+    "details": "Profile information updated"
+  },
+  {
+    "id": 4,
+    "action": "User Deactivated",
+    "user_id": 3,
+    "username": "jane_smith",
+    "timestamp": "2025-05-30T10:10:11.9960932+05:30",
+    "details": "User jane_smith was deactivated"
+  },
+  {
+    "id": 5,
+    "action": "User Activated",
+    "user_id": 4,
+    "username": "inactive_user",
+    "timestamp": "2025-05-30T10:10:13.6257457+05:30",
+    "details": "User inactive_user was activated"
+  }
+]
