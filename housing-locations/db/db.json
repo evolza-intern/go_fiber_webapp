@@ -25,8 +25,8 @@
     "city": "Juneau",
     "state": "AK",
     "photo": "/assets/i-do-nothing-but-love-lAyXdl1-Wmc-unsplash.jpg",
-    "availableUnits": 1,
-    "wifi": false,
+    "availableUnits": 2,
+    "wifi": true,
     "laundry": false
   },
   {

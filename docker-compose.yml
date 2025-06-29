@@ -1,0 +1,142 @@
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: ecommerce_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: go_fiber_eCommerce
+    volumes:
+      - mongodb_data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - ecommerce_network
+
+  # Products Service
+  products-service:
+    build:
+      context: ./products-service
+      dockerfile: Dockerfile
+    container_name: products_service
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    environment:
+      - MONGO_URI=mongodb://admin:password123@mongodb:27017/go_fiber_eCommerce?authSource=admin
+      - PORT=8002
+    depends_on:
+      - mongodb
+    networks:
+      - ecommerce_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Order Service
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: order_service
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGO_URI=mongodb://admin:password123@mongodb:27017/go_fiber_eCommerce?authSource=admin
+      - PORT=3001
+    volumes:
+      - ./invoices:/root/invoices
+    depends_on:
+      - mongodb
+      - products-service
+    networks:
+      - ecommerce_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Cart Service
+  cart-service:
+    build:
+      context: ./cart-service
+      dockerfile: Dockerfile
+    container_name: cart_service
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+    depends_on:
+      - products-service
+    networks:
+      - ecommerce_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Accounts Service
+  accounts-service:
+    build:
+      context: ./accounts-service
+      dockerfile: Dockerfile
+    container_name: accounts_service
+    restart: unless-stopped
+    ports:
+      - "3003:3000"
+    environment:
+      - PORT=3000
+    networks:
+      - ecommerce_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api_gateway
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - PRODUCTS_SERVICE_URL=http://products-service:8002
+      - ORDER_SERVICE_URL=http://order-service:3001
+      - CART_SERVICE_URL=http://cart-service:3002
+      - ACCOUNTS_SERVICE_URL=http://accounts-service:3000
+    depends_on:
+      - products-service
+      - order-service
+      - cart-service
+      - accounts-service
+    networks:
+      - ecommerce_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# Networks
+networks:
+  ecommerce_network:
+    driver: bridge
+
+# Volumes
+volumes:
+  mongodb_data:
+    driver: local
